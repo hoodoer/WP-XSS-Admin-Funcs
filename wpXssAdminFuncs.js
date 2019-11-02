@@ -2,6 +2,8 @@
 	JavaScript functions designed to be used as a XSS payload
 	against a WordPress admin. 
 
+	Built for an XSS to shell demo/talk. 
+
 	Only use this code for pentesting systems you're authorized to 
 	touch. Or I will be seriously grumpy in your general direction. 
 
