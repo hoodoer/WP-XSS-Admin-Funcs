@@ -12,4 +12,5 @@ Only use this code for pentesting systems you're authorized to touch. Or I will 
 Working functions:
 
 Add new administrator user
+
 Exfiltrate wordpress site content export
