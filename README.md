@@ -14,3 +14,5 @@ Working functions:
 Add new administrator user
 
 Exfiltrate wordpress site content export
+
+Incoming: Plugin upload
