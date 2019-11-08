@@ -6,7 +6,7 @@ JavaScript functions intended to be used as an XSS payload against a WordPress a
 
 Only use this code for pentesting systems you're authorized to touch. Or I will be seriously grumpy in your general direction. 
 
-Note that if you're uploading a plugin using this payload, you're wordpress plugin zip file will need to be encoded and embedded in the JavaScript. See this converter:
+Note that if you're uploading a plugin using this payload, your wordpress plugin zip file will need to be encoded and embedded in the JavaScript. See this converter:
 https://github.com/hoodoer/javascriptFileEncoder
 
 
