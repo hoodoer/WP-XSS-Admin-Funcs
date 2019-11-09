@@ -18,4 +18,7 @@ Add new administrator user
 
 Exfiltrate wordpress site content export
 
-Incoming: Plugin upload
+Wordpress plugin installation
+
+Next up: Automatically hide the plugin after installation
+
