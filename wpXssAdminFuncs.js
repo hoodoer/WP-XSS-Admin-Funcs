@@ -287,10 +287,14 @@ function installYertleShell()
 			// This is fun, you don't actually have to activate the yertle plugin
 			// to use it. 
 			// You can now use the yertle script to interact with the server by 
-			// sending php code, assumign that's the plugin you added. That's
+			// sending php code, assuming that's the plugin you added. That's
 			// what's in the zip file embedded in this javascript example
 			// See WPForce:
 			// https://github.com/n00py/WPForce
+			// Note that I had a misspelling in here before. Thankfully
+			// Scott White noticed it, and informed me of my error. 
+			// Not through a pull request, no. Shit-posting, yes. 
+			// God bless that fella. 
 
 		}
 	}
