@@ -1,6 +1,4 @@
 # WP-XSS-Admin-Funcs
-WORK IN PROGRESS.
-
 JavaScript functions intended to be used as an XSS payload against a WordPress admin account. 
 
 
@@ -20,5 +18,6 @@ Exfiltrate wordpress site content export
 
 Wordpress plugin installation
 
-Next up: Automatically hide the plugin after installation
+Automatically hide the malicous yertle plugin after it's installed
 
+Next up: Pop shells?
