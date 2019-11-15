@@ -21,3 +21,4 @@ Wordpress plugin installation
 Automatically hide the malicous yertle plugin after it's installed
 
 Next up: Pop shells?
+More generic "hide plugin" function?
