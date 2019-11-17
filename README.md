@@ -18,7 +18,7 @@ Exfiltrate wordpress site content export
 
 Wordpress plugin installation
 
-Automatically hide the malicous yertle plugin after it's installed
+Automatically hide the malicous plugin after it's installed
 
 Next up: 
 
