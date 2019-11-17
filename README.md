@@ -20,9 +20,10 @@ Wordpress plugin installation
 
 Automatically hide the malicous plugin after it's installed
 
-Next up: 
+Upload PHP meterpreter shell and execute
 
-Pop PHP meterpreter shell?
+
+Next up: 
 
 Pop proper meterpreter shell (really, no one likes PHP meterpreter shells)?
 
