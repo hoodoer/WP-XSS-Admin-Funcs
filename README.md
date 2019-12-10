@@ -25,6 +25,8 @@ Upload PHP meterpreter shell and execute
 
 Next up: 
 
+Disable WordFence? (work in progress)
+
 Pop proper meterpreter shell (really, no one likes PHP meterpreter shells)?
 
 Deactive plugin?
