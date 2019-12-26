@@ -10,6 +10,10 @@ https://github.com/hoodoer/javascriptFileEncoder
 
 @hoodoer
 
+You can see a demo/webinar on how to go about developing code like this here:
+https://youtu.be/NBWYRLnWDkM
+
+
 Working functions:
 
 Add new administrator user
