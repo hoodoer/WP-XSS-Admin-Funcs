@@ -10,9 +10,26 @@ https://github.com/hoodoer/javascriptFileEncoder
 
 @hoodoer
 
+There's a blog post writeup on weaponizing XSS payloads here:
+
+https://www.trustedsec.com/blog/tricks-for-weaponizing-xss/
+
 You can see a demo/webinar on how to go about developing code like this here:
 
 https://youtu.be/NBWYRLnWDkM
+
+
+
+Note that in the webinar I stated that you cannot control/set the 'Referer' header from your XSS payload. This is incorrect. 
+
+You can set the referer using a simple trick, see this gist for an example:
+
+https://gist.github.com/hoodoer/c4eb12b99d5902119fb30e8343b5b228
+
+There's a blog post going over how to control the referer value using that code snippet here:
+
+https://www.trustedsec.com/blog/setting-the-referer-header-using-javascript/
+
 
 
 Working functions:
